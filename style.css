@@ -407,7 +407,7 @@ h1.glitch, .section-title {
     max-width: 100% !important;
     max-height: 75vh !important;
     padding-top: 80px !important;    /* Dégage le haut sous le HUD */
-    padding-bottom: 70px !important; /* Dégage le bas au-dessus du compteur */
+    padding-bottom: 80px !important; /* Dégage le bas pour le menu */
     padding-left: 10px !important;
     padding-right: 10px !important;
     margin: 0 auto !important;
@@ -484,15 +484,31 @@ h1.glitch, .section-title {
     left: 20px !important;
     right: 20px !important;
     font-size: 0.7rem !important;
+    bottom: 5px !important; /* Remonte légèrement pour ne pas gêner le menu */
   }
 
   .hud-hint {
     display: none !important;
   }
 
-  /* Repositionnement discret du menu latéral */
+  /* CORRECTION : Repositionnement du menu en bas de l'écran pour mobile */
   .orbital-nav {
-    right: 10px !important;
-    transform: translateY(-50%) scale(0.8);
+    top: auto !important;
+    bottom: 25px !important; /* Place le menu en bas */
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) scale(0.7) !important; /* Centre horizontalement et réduit la taille */
+    flex-direction: row !important; /* Aligne les boutons horizontalement */
+    gap: 10px !important;
+    width: auto !important;
+    z-index: 100 !important;
+  }
+
+  /* Ajustement des boutons du menu pour un affichage horizontal */
+  .nav-node {
+    text-align: center !important;
+    padding: 6px 10px !important;
+    font-size: 0.65rem !important;
+    white-space: nowrap !important; /* Empêche le texte de se couper */
   }
 }
