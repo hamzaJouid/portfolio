@@ -1,254 +1,421 @@
-:root {
-  --bg: #030409;
-  --accent: #00f0ff;
-  --accent2: #ff2d78;
-  --text: #e8f6ff;
-  --dim: rgba(232, 246, 255, 0.55);
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-html, body {
-  height: 100%;
-  overflow: hidden;            /* Pas de scroll natif : navigation custom */
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Space Grotesk', sans-serif;
-  cursor: none;                /* Curseur custom */
-}
-
-#webgl { position: fixed; inset: 0; z-index: 0; }
-
-/* ---------- Effets d'ambiance ---------- */
-.scanlines {
-  position: fixed; inset: 0; z-index: 50; pointer-events: none;
-  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,0.15) 2px 4px);
-  mix-blend-mode: overlay;
-}
-.vignette {
-  position: fixed; inset: 0; z-index: 49; pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.75));
-}
-.noise {
-  position: fixed; inset: -50%; z-index: 51; pointer-events: none; opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain 0.4s steps(4) infinite;
-}
-@keyframes grain {
-  0% { transform: translate(0,0); } 25% { transform: translate(-2%,3%); }
-  50% { transform: translate(3%,-2%); } 75% { transform: translate(-3%,-3%); }
-  100% { transform: translate(2%,2%); }
-}
-
-/* ---------- Curseur ---------- */
-.cursor-dot, .cursor-ring {
-  position: fixed; top: 0; left: 0; z-index: 100; pointer-events: none;
-  border-radius: 50%; transform: translate(-50%, -50%);
-}
-.cursor-dot { width: 6px; height: 6px; background: var(--accent); }
-.cursor-ring {
-  width: 34px; height: 34px; border: 1px solid var(--accent);
-  transition: width 0.25s, height 0.25s, border-color 0.25s;
-}
-.cursor-ring.hover { width: 60px; height: 60px; border-color: var(--accent2); }
-
-/* ---------- HUD ---------- */
-.hud { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
-.hud-corner { position: absolute; width: 28px; height: 28px; border: 1px solid rgba(0,240,255,0.5); }
-.hud-corner.tl { top: 18px; left: 18px; border-right: none; border-bottom: none; }
-.hud-corner.tr { top: 18px; right: 18px; border-left: none; border-bottom: none; }
-.hud-corner.bl { bottom: 18px; left: 18px; border-right: none; border-top: none; }
-.hud-corner.br { bottom: 18px; right: 18px; border-left: none; border-top: none; }
-
-.hud-top, .hud-bottom {
-  position: absolute; left: 60px; right: 60px; display: flex;
-  justify-content: space-between; align-items: center;
-  font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 2px;
-}
-.hud-top { top: 26px; }
-.hud-bottom { bottom: 26px; color: var(--dim); }
-.logo { font-weight: 900; font-size: 16px; pointer-events: auto; }
-.accent { color: var(--accent); }
-.hud-status { color: var(--dim); display: flex; align-items: center; gap: 8px; }
-.pulse-dot {
-  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
-  animation: pulse 1.5s infinite;
-}
-@keyframes pulse { 0%,100% { opacity: 1; box-shadow: 0 0 8px var(--accent); } 50% { opacity: 0.3; } }
-.section-counter { color: var(--accent); font-size: 14px; }
-
-/* ---------- Navigation orbitale ---------- */
-.orbital-nav {
-  position: fixed; right: 40px; top: 50%; transform: translateY(-50%);
-  z-index: 45; display: flex; flex-direction: column; gap: 34px;
-}
-.nav-line {
-  position: absolute; right: 7px; top: -20px; bottom: -20px; width: 1px;
-  background: linear-gradient(transparent, rgba(0,240,255,0.4), transparent); z-index: -1;
-}
-.nav-node {
-  width: 15px; height: 15px; background: transparent; cursor: none;
-  border: 1px solid var(--accent); transform: rotate(45deg);  /* Losanges */
-  position: relative; transition: all 0.3s;
-}
-.nav-node.active { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
-.node-label {
-  position: absolute; right: 28px; top: 50%;
-  transform: translateY(-50%) rotate(-45deg); transform-origin: right center;
-  font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px;
-  color: var(--dim); opacity: 0; transition: opacity 0.3s; white-space: nowrap;
-}
-.nav-node:hover .node-label, .nav-node.active .node-label { opacity: 1; color: var(--accent); }
-
-/* ---------- Panneaux de section ---------- */
-.panel {
-  position: fixed; inset: 0; z-index: 30;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; pointer-events: none; visibility: hidden;
-  transition: opacity 0.6s ease, visibility 0.6s;
-}
-.panel.active { opacity: 1; pointer-events: auto; visibility: visible; }
-.panel-content { text-align: center; max-width: 900px; padding: 0 40px; }
-.panel.active .panel-content { animation: panelIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
-@keyframes panelIn {
-  0% { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(10px); }
-  100% { opacity: 1; transform: none; filter: none; }
-}
-
-.pre-title { font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 6px; color: var(--accent); margin-bottom: 20px; }
-h1.glitch { font-family: 'Orbitron', sans-serif; font-size: clamp(60px, 12vw, 140px); font-weight: 900; line-height: 1; }
-.section-title { font-family: 'Orbitron', sans-serif; font-size: clamp(36px, 6vw, 64px); font-weight: 700; margin-bottom: 45px; }
-.subtitle { margin-top: 24px; font-size: 20px; font-weight: 300; color: var(--dim); line-height: 1.6; }
-
-/* Effet glitch sur les titres */
-.glitch { position: relative; }
-.glitch::before, .glitch::after {
-  content: attr(data-text); position: absolute; inset: 0; opacity: 0.8;
-  clip-path: inset(50% 0 50% 0);
-}
-.glitch::before { color: var(--accent); animation: glitchA 3s infinite steps(2); }
-.glitch::after { color: var(--accent2); animation: glitchB 2.7s infinite steps(2); }
-@keyframes glitchA {
-  0%, 92% { clip-path: inset(50% 0 50% 0); transform: none; }
-  93% { clip-path: inset(10% 0 60% 0); transform: translate(-6px, 2px); }
-  96% { clip-path: inset(70% 0 5% 0); transform: translate(6px, -2px); }
-  99% { clip-path: inset(40% 0 40% 0); transform: translate(-3px, 1px); }
-}
-@keyframes glitchB {
-  0%, 94% { clip-path: inset(50% 0 50% 0); transform: none; }
-  95% { clip-path: inset(60% 0 10% 0); transform: translate(5px, -3px); }
-  98% { clip-path: inset(5% 0 80% 0); transform: translate(-5px, 3px); }
-}
-
-/* ---------- CTA ---------- */
-.cta {
-  margin-top: 45px; padding: 16px 38px; background: transparent;
-  border: 1px solid var(--accent); color: var(--accent); cursor: none;
-  font-family: 'Orbitron', sans-serif; font-size: 13px; letter-spacing: 3px;
-  position: relative; overflow: hidden; transition: color 0.3s;
-}
-.cta::before {
-  content: ''; position: absolute; inset: 0; background: var(--accent);
-  transform: scaleX(0); transform-origin: left; transition: transform 0.35s; z-index: -1;
-}
-.cta:hover { color: var(--bg); }
-.cta:hover::before { transform: scaleX(1); }
-.cta-arrow { display: inline-block; transition: transform 0.3s; }
-.cta:hover .cta-arrow { transform: translateX(6px); }
-
-/* ---------- Cartes holographiques (horizontales, tilt 3D) ---------- */
-.holo-grid { display: flex; gap: 26px; justify-content: center; perspective: 1000px; flex-wrap: wrap; }
-.holo-card {
-  width: 250px; padding: 30px 24px; text-align: left;
-  background: linear-gradient(160deg, rgba(0,240,255,0.07), rgba(255,45,120,0.05));
-  border: 1px solid rgba(0,240,255,0.3); backdrop-filter: blur(6px);
-  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
-  transition: transform 0.15s ease-out, border-color 0.3s, box-shadow 0.3s;
-  transform-style: preserve-3d;
-}
-.holo-card:hover { border-color: var(--accent); box-shadow: 0 0 30px rgba(0,240,255,0.25); }
-.card-id { font-family: 'Orbitron', sans-serif; font-size: 10px; color: var(--accent2); letter-spacing: 3px; }
-.holo-card h3 { font-family: 'Orbitron', sans-serif; margin: 12px 0; font-size: 19px; }
-.holo-card p { font-size: 14px; color: var(--dim); line-height: 1.5; min-height: 63px; }
-.card-tag {
-  display: inline-block; margin-top: 14px; padding: 4px 12px; font-size: 10px;
-  letter-spacing: 2px; border: 1px solid var(--accent); color: var(--accent);
-}
-
-/* ---------- Profil ---------- */
-.profile-layout { display: flex; gap: 60px; align-items: center; text-align: left; flex-wrap: wrap; justify-content: center; }
-.bio { flex: 1 1 320px; font-size: 18px; font-weight: 300; color: var(--dim); line-height: 1.8; }
-.skills { flex: 1 1 320px; display: flex; flex-direction: column; gap: 22px; }
-.skill span { font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 3px; }
-.skill-bar { margin-top: 8px; height: 3px; background: rgba(0,240,255,0.15); }
-.skill-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent2)); box-shadow: 0 0 10px var(--accent); transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.panel.active .skill[data-level="95"] i { width: 95%; }
-.panel.active .skill[data-level="90"] i { width: 90%; }
-.panel.active .skill[data-level="85"] i { width: 85%; }
-.panel.active .skill[data-level="80"] i { width: 80%; }
-
-/* ---------- Contact ---------- */
-.contact-line { font-size: 20px; color: #ffffff; font-weight: bold; margin-bottom: 20px; }
-.contact-mail {
-  font-family: 'Orbitron', sans-serif; font-size: clamp(24px, 4vw, 44px);
-  color: var(--text); text-decoration: none; border-bottom: 2px solid var(--accent);
-  transition: color 0.3s, text-shadow 0.3s;
-}
-.contact-mail:hover { color: var(--accent); text-shadow: 0 0 25px var(--accent); }
-.socials { margin-top: 50px; display: flex; gap: 40px; justify-content: center; }
-.socials a {
-  font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 3px;
-  color: var(--dim); text-decoration: none; transition: color 0.3s;
-}
-.socials a:hover { color: var(--accent2); }
-
-@media (max-width: 768px) {
-  .orbital-nav { right: 16px; }
-  .hud-top, .hud-bottom { left: 20px; right: 60px; }
-  .hud-status, .hud-hint { display: none; }
-}
 /* ============================================================
-   CORRECTIF RESPONSIVE MOBILE (À ajouter à la fin de style.css)
+   1. REINITIALISATION ET VARIABLES
    ============================================================ */
-
-/* 1. Empêcher tout débordement horizontal global */
-html, body {
-  width: 100%;
-  max-width: 100vw;
-  overflow-x: hidden;
-  box-sizing: border-box;
+:root {
+  --bg-color: #030712;
+  --card-bg: rgba(10, 18, 32, 0.75);
+  --accent-cyan: #00f0ff;
+  --accent-magenta: #ff0055;
+  --text-main: #e2e8f0;
+  --text-dim: #94a3b8;
+  --border-color: rgba(0, 240, 255, 0.2);
+  --border-glow: rgba(0, 240, 255, 0.5);
+  --font-title: 'Orbitron', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
 }
 
 *, *::before, *::after {
-  box-sizing: inherit;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* 2. Adaptations spécifiques pour smartphones (< 768px) */
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ============================================================
+   2. CANVAS WEBGL & EFFETS D'AMBIANCE
+   ============================================================ */
+#webgl {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.3)
+  );
+  background-size: 100% 4px;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, transparent 60%, rgba(3, 7, 18, 0.9) 100%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ============================================================
+   3. CURSEUR PERSONNALISÉ (PC)
+   ============================================================ */
+.cursor-dot, .cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent-cyan);
+}
+
+.cursor-ring {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--accent-cyan);
+  transition: width 0.2s, height 0.2s, border-color 0.2s;
+}
+
+/* ============================================================
+   4. HUD & NAVIGATION ORBITALE
+   ============================================================ */
+.hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.hud-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--accent-cyan);
+}
+.hud-corner.tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+.hud-corner.tr { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+.hud-corner.bl { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+.hud-corner.br { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+.hud-top {
+  position: absolute;
+  top: 25px;
+  left: 40px;
+  right: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+}
+
+.logo {
+  font-weight: 900;
+  color: #fff;
+}
+.accent { color: var(--accent-cyan); }
+
+.pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #00ff66;
+  border-radius: 50%;
+  margin-right: 8px;
+  box-shadow: 0 0 10px #00ff66;
+}
+
+.hud-bottom {
+  position: absolute;
+  bottom: 25px;
+  left: 40px;
+  right: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.orbital-nav {
+  position: fixed;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 30;
+}
+
+.nav-node {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-dim);
+  padding: 8px 16px;
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  text-align: right;
+}
+
+.nav-node.active, .nav-node:hover {
+  border-color: var(--accent-cyan);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+/* ============================================================
+   5. PANNEAUX ET CONTENU PRINCIPAL (PC)
+   ============================================================ */
+.panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  z-index: 10;
+}
+
+.panel.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.panel-content {
+  width: 85%;
+  max-width: 1100px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Scrollbar discrète */
+.panel-content::-webkit-scrollbar {
+  width: 4px;
+}
+.panel-content::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+
+.pre-title {
+  font-family: var(--font-title);
+  color: var(--accent-cyan);
+  letter-spacing: 3px;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+h1.glitch, .section-title {
+  font-family: var(--font-title);
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin-bottom: 30px;
+}
+
+.cta {
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid var(--accent-cyan);
+  color: #fff;
+  padding: 12px 28px;
+  font-family: var(--font-title);
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cta:hover {
+  background: var(--accent-cyan);
+  color: #000;
+}
+
+/* GRILLE PROJETS */
+.holo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.holo-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 25px;
+  position: relative;
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.holo-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+}
+
+.card-id {
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  color: var(--accent-magenta);
+}
+
+.holo-card h3 {
+  font-family: var(--font-title);
+  margin: 10px 0;
+  font-size: 1.25rem;
+}
+
+.holo-card p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.card-tag {
+  display: inline-block;
+  font-family: var(--font-title);
+  font-size: 0.65rem;
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  color: var(--accent-cyan);
+}
+
+/* PROFIL & COMPÉTENCES */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.bio {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+
+.skills {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.skill span {
+  display: block;
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+}
+
+.skill-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  position: relative;
+}
+
+.skill-bar i {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--accent-cyan);
+  width: 80%; /* Ajusté selon le data-level en JS */
+}
+
+/* CONTACT */
+.contact-mail {
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  color: var(--accent-cyan);
+  text-decoration: none;
+  display: inline-block;
+  margin: 20px 0;
+  transition: opacity 0.3s;
+}
+
+.socials {
+  display: flex;
+  gap: 20px;
+}
+
+.socials a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  transition: color 0.3s;
+}
+
+.socials a:hover {
+  color: #fff;
+}
+
+
+/* ============================================================
+   6. OPTIMISATIONS RESPONSIVES MOBILE (Smartphones & Tablettes)
+   ============================================================ */
 @media screen and (max-width: 768px) {
 
-  /* Masquer le curseur personnalisé sur écran tactile */
+  /* Masquer le curseur personnalisé sur tactile */
   .cursor-dot, .cursor-ring {
     display: none !important;
   }
+
   body {
     cursor: auto !important;
   }
 
-  /* Ajuster le conteneur principal */
+  /* Redimensionnement des panneaux et scroll auto pour éviter les chevauchements */
   .panel-content {
-    width: 90% !important;
+    width: 92% !important;
     max-width: 100% !important;
-    padding: 80px 15px 40px 15px !important; /* Dégage l'espace pour le header/footer HUD */
+    max-height: 75vh !important;
+    padding-top: 80px !important;    /* Dégage le haut sous le HUD */
+    padding-bottom: 70px !important; /* Dégage le bas au-dessus du compteur */
+    padding-left: 10px !important;
+    padding-right: 10px !important;
     margin: 0 auto !important;
-    box-sizing: border-box !important;
+    overflow-y: auto !important;
   }
 
-  /* Rendre les titres adaptatifs */
+  /* Ajustement des titres */
   h1.glitch {
     font-size: 1.8rem !important;
     word-break: break-word;
   }
-  
+
   .section-title {
     font-size: 1.6rem !important;
   }
@@ -257,7 +424,7 @@ html, body {
     font-size: 0.95rem !important;
   }
 
-  /* SECTION PROJETS : Empiler les cartes holographiques sur 1 seule colonne */
+  /* PROJETS : Empilement vertical obligatoire des cartes */
   .holo-grid {
     display: flex !important;
     flex-direction: column !important;
@@ -268,46 +435,59 @@ html, body {
   .holo-card {
     width: 100% !important;
     max-width: 100% !important;
-    box-sizing: border-box !important;
+    padding: 18px !important;
   }
 
-  /* SECTION PROFIL : Réorganiser en une seule colonne */
+  .holo-card h3 {
+    font-size: 1.1rem !important;
+  }
+
+  .holo-card p {
+    font-size: 0.85rem !important;
+  }
+
+  /* PROFIL : Passage à 1 colonne */
   .profile-layout {
     display: flex !important;
     flex-direction: column !important;
     gap: 20px !important;
-    width: 100% !important;
   }
 
-  /* SECTION CONTACT : Ajuster le texte et l'email */
+  .bio {
+    font-size: 0.95rem !important;
+  }
+
+  /* CONTACT : Prévention des débordements de texte */
   .contact-mail {
     font-size: 1.1rem !important;
-    word-break: break-all; /* Empêche l'adresse email de sortir de l'écran */
+    word-break: break-all;
   }
 
   .socials {
     flex-wrap: wrap !important;
     gap: 15px !important;
-    justify-content: center !important;
   }
 
-  /* HUD : Adapter les textes du menu et des coins sur mobile */
+  /* HUD : Adaptations d'affichage */
   .hud-top {
-    font-size: 0.8rem !important;
-    padding: 10px !important;
+    left: 20px !important;
+    right: 20px !important;
+    font-size: 0.75rem !important;
   }
 
   .hud-bottom {
-    font-size: 0.75rem !important;
-    padding: 10px !important;
+    left: 20px !important;
+    right: 20px !important;
+    font-size: 0.7rem !important;
   }
 
   .hud-hint {
-    display: none !important; /* Masque le message "Scroll wheel" inutile sur mobile */
+    display: none !important; /* Masque la mention de roulette de souris */
   }
 
-  /* NAVIGATION : Rendre la barre de navigation plus compacte */
+  /* Repositionnement discret du menu latéral */
   .orbital-nav {
-    transform: scale(0.85); /* Réduit légèrement la taille globale du menu */
+    right: 10px !important;
+    transform: translateY(-50%) scale(0.8);
   }
 }
