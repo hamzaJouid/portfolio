@@ -207,3 +207,107 @@ h1.glitch { font-family: 'Orbitron', sans-serif; font-size: clamp(60px, 12vw, 14
   .hud-top, .hud-bottom { left: 20px; right: 60px; }
   .hud-status, .hud-hint { display: none; }
 }
+/* ============================================================
+   CORRECTIF RESPONSIVE MOBILE (À ajouter à la fin de style.css)
+   ============================================================ */
+
+/* 1. Empêcher tout débordement horizontal global */
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+/* 2. Adaptations spécifiques pour smartphones (< 768px) */
+@media screen and (max-width: 768px) {
+
+  /* Masquer le curseur personnalisé sur écran tactile */
+  .cursor-dot, .cursor-ring {
+    display: none !important;
+  }
+  body {
+    cursor: auto !important;
+  }
+
+  /* Ajuster le conteneur principal */
+  .panel-content {
+    width: 90% !important;
+    max-width: 100% !important;
+    padding: 80px 15px 40px 15px !important; /* Dégage l'espace pour le header/footer HUD */
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Rendre les titres adaptatifs */
+  h1.glitch {
+    font-size: 1.8rem !important;
+    word-break: break-word;
+  }
+  
+  .section-title {
+    font-size: 1.6rem !important;
+  }
+
+  .subtitle {
+    font-size: 0.95rem !important;
+  }
+
+  /* SECTION PROJETS : Empiler les cartes holographiques sur 1 seule colonne */
+  .holo-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+    width: 100% !important;
+  }
+
+  .holo-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* SECTION PROFIL : Réorganiser en une seule colonne */
+  .profile-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+    width: 100% !important;
+  }
+
+  /* SECTION CONTACT : Ajuster le texte et l'email */
+  .contact-mail {
+    font-size: 1.1rem !important;
+    word-break: break-all; /* Empêche l'adresse email de sortir de l'écran */
+  }
+
+  .socials {
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    justify-content: center !important;
+  }
+
+  /* HUD : Adapter les textes du menu et des coins sur mobile */
+  .hud-top {
+    font-size: 0.8rem !important;
+    padding: 10px !important;
+  }
+
+  .hud-bottom {
+    font-size: 0.75rem !important;
+    padding: 10px !important;
+  }
+
+  .hud-hint {
+    display: none !important; /* Masque le message "Scroll wheel" inutile sur mobile */
+  }
+
+  /* NAVIGATION : Rendre la barre de navigation plus compacte */
+  .orbital-nav {
+    transform: scale(0.85); /* Réduit légèrement la taille globale du menu */
+  }
+}
