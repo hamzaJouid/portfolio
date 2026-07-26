@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAMZA NEXUS TECH — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Canvas WebGL plein écran -->
+<canvas id="webgl"></canvas>
+
+<!-- Effets d'ambiance -->
+<div class="scanlines"></div>
+<div class="vignette"></div>
+<div class="noise"></div>
+
+<!-- Curseur personnalisé -->
+<div class="cursor-dot"></div>
+<div class="cursor-ring"></div>
+
+<!-- HUD : coins de l'interface -->
+<div class="hud">
+  <div class="hud-corner tl"></div>
+  <div class="hud-corner tr"></div>
+  <div class="hud-corner bl"></div>
+  <div class="hud-corner br"></div>
+  <div class="hud-top">
+    <span class="logo" data-hover>HAMZA<span class="accent"> </span>JOUID</span>
+    <span class="hud-status"><span class="pulse-dot"></span> Digital platform — <span id="clock">00:00:00</span></span>
+  </div>
+  <div class="hud-bottom">
+    <span class="section-counter"><span id="current-index">01</span> / 04</span>
+    <span class="hud-hint">Scroll wheel / Arrow keys to navigate</span>
+  </div>
+</div>
+
+<!-- Menu orbital de navigation -->
+<nav class="orbital-nav">
+  <button class="nav-node active" data-index="0" data-hover><span class="node-label">HOME</span></button>
+  <button class="nav-node" data-index="1" data-hover><span class="node-label">PROJECTS</span></button>
+  <button class="nav-node" data-index="2" data-hover><span class="node-label">PROFILE</span></button>
+  <button class="nav-node" data-index="3" data-hover><span class="node-label">CONTACT</span></button>
+  <div class="nav-line"></div>
+</nav>
+
+<!-- SECTION 0 : ACCUEIL -->
+<section class="panel active" data-section="0">
+  <div class="panel-content home">
+    <p class="pre-title">Tech Solutions — Digital Services</p>
+    <h1 class="glitch" data-text="Hamza Nexus Tech">Hamza Nexus Tech</h1>
+    <p class="subtitle">I build digital experiences<br> at the frontier of <span class="accent">the real</span> and virtual <span class="accent">worlds</span>.</p>
+    <button class="cta" data-goto="1" data-hover>Explore <span class="cta-arrow">→</span></button>
+  </div>
+</section>
+
+<!-- SECTION 1 : PROJETS -->
+<section class="panel" data-section="1">
+  <div class="panel-content">
+    <h2 class="section-title glitch" data-text="PROJETS">PROJETS</h2>
+    <div class="holo-grid">
+      <article class="holo-card" data-hover>
+        <span class="card-id">P.001</span>
+        <h3>Workforce management</h3>
+        <p>RReal-Time 3D Data Visualization — KPI's ANALYST, Planification.</p>
+        <span class="card-tag">DATA</span>
+      </article>
+      <article class="holo-card" data-hover>
+        <span class="card-id">P.002</span>
+        <h3>Social Media Manager & Spécialiste Content Ads</h3>
+        <p>Dynamic video editing — Content scheduling & planning — Performance analytics & reporting — Community management & moderation.</p>
+        <span class="card-tag">Social Media & Video Specialist</span>
+      </article>
+      <article class="holo-card" data-hover>
+        <span class="card-id">P.003</span>
+        <h3>Artificial intelligence</h3>
+        <p>Advanced Prompt Engineering — Workflow Automation — Multi-Platform Content Generation — Content Generation .</p>
+        <span class="card-tag">Artificial intelligence</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2 : PROFIL -->
+<section class="panel" data-section="2">
+  <div class="panel-content">
+    <h2 class="section-title glitch" data-text="PROFIL">PROFIL</h2>
+    <div class="profile-layout">
+      <p class="bio">Creative developer driven by motion, light, and interaction.
+      I transform abstract ideas into immersive, dynamic interfaces.</p>
+      <div class="skills">
+        <div class="skill" data-level="95"><span>Workforce management</span><div class="skill-bar"><i></i></div></div>
+        <div class="skill" data-level="90"><span>Artificial intelligence</span><div class="skill-bar"><i></i></div></div>
+        <div class="skill" data-level="85"><span>Digital Solutions</span><div class="skill-bar"><i></i></div></div>
+        <div class="skill" data-level="80"><span>Social media management</span><div class="skill-bar"><i></i></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3 : CONTACT -->
+<section class="panel" data-section="3">
+  <div class="panel-content contact">
+    <h2 class="section-title glitch" data-text="CONTACT">CONTACT</h2>
+    <p class="contact-line">Think outside the box. Rewrite the rules</p>
+    <a href="mailto:hello@nexus.dev" class="contact-mail" data-hover>Hamza.jouid@gmail.com</a>
+    <div class="socials">
+      <a href="#" data-hover>GITLAB</a>
+      <a href="#" data-hover>LINKEDIN</a>
+      <a href="#" data-hover>TWITTER/X</a>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
