@@ -215,7 +215,6 @@ html, body {
   padding: 20px;
 }
 
-/* Scrollbar discrète */
 .panel-content::-webkit-scrollbar {
   width: 4px;
 }
@@ -240,11 +239,16 @@ h1.glitch, .section-title {
   text-transform: uppercase;
 }
 
+/* Sous-titre d'accueil en blanc */
 .subtitle {
   font-size: 1.2rem;
   line-height: 1.6;
-  color: var(--text-dim);
+  color: #ffffff;
   margin-bottom: 30px;
+}
+
+.subtitle .accent {
+  color: #ffffff;
 }
 
 .cta {
@@ -351,7 +355,7 @@ h1.glitch, .section-title {
   left: 0;
   height: 100%;
   background: var(--accent-cyan);
-  width: 80%; /* Ajusté selon le data-level en JS */
+  width: 80%;
 }
 
 /* CONTACT */
@@ -422,6 +426,7 @@ h1.glitch, .section-title {
 
   .subtitle {
     font-size: 0.95rem !important;
+    color: #ffffff !important;
   }
 
   /* PROJETS : Empilement vertical obligatoire des cartes */
@@ -482,7 +487,7 @@ h1.glitch, .section-title {
   }
 
   .hud-hint {
-    display: none !important; /* Masque la mention de roulette de souris */
+    display: none !important;
   }
 
   /* Repositionnement discret du menu latéral */
